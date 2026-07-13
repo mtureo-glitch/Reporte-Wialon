@@ -140,40 +140,6 @@
     width:10px;height:10px;border-radius:2px;display:inline-block;margin-left:10px;
   }
   .legend-critico .dot:first-child{ margin-left:0; }
-  .critical-locations{
-    margin-top:16px;
-    border-top:1px solid #ece8dd;
-    padding-top:10px;
-  }
-  .critical-locations h4{
-    font-family:'Barlow Condensed', sans-serif;
-    font-size:15px;
-    font-weight:600;
-    color:#C0392B;
-    margin:0 0 8px;
-    text-transform:uppercase;
-    letter-spacing:0.5px;
-  }
-  .critical-item{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-    padding:5px 8px;
-    border-radius:4px;
-    font-size:13px;
-  }
-  .critical-item:nth-child(odd){ background:#faf6f4; }
-  .critical-item .ci-label{ color:#4a4440; }
-  .critical-item .ci-dias{ color:#C0392B; font-weight:700; white-space:nowrap; }
-  .critical-item a{
-    color:#EA7600;
-    text-decoration:none;
-    font-weight:600;
-    white-space:nowrap;
-  }
-  .critical-item a:hover{ text-decoration:underline; }
-  .critical-item .ci-nolink{ color:#b0a898; font-size:12px; white-space:nowrap; }
   .kpi-row{
     display:flex;
     gap:14px;
@@ -262,7 +228,6 @@
           <span class="dot" style="background:#C0392B"></span> Crítico (&gt; 7 días)
         </div>
         <div id="rankChartWrap"><canvas id="rankChart"></canvas></div>
-        <div id="criticalLocations" class="critical-locations"></div>
       </div>
     </div>
 
@@ -497,30 +462,6 @@ function render(){
       }
     }]
   });
-  // Lista de ubicaciones para equipos críticos (>7 días)
-  const criticos = withDias.filter(d=>d.dias>7).sort((a,b)=>b.dias-a.dias);
-  const locEl = document.getElementById('criticalLocations');
-  if(!criticos.length){
-    locEl.innerHTML = '';
-  } else {
-    const items = criticos.map(d=>{
-      const diasTxt = `${d.dias} días`;
-      if(d.ubicacion){
-        const url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(d.ubicacion);
-        return `<div class="critical-item">
-          <span class="ci-label">${d.label}</span>
-          <span class="ci-dias">${diasTxt}</span>
-          <a href="${url}" target="_blank" rel="noopener">Ver ubicación ↗</a>
-        </div>`;
-      }
-      return `<div class="critical-item">
-        <span class="ci-label">${d.label}</span>
-        <span class="ci-dias">${diasTxt}</span>
-        <span class="ci-nolink">Sin ubicación</span>
-      </div>`;
-    }).join('');
-    locEl.innerHTML = `<h4>Ubicación equipos críticos</h4>${items}`;
-  }
 }
 
 render();
