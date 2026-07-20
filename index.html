@@ -323,7 +323,7 @@
   <div class="tab-panel" id="tab-criticos" style="display:none;">
     <div class="critico-zona-intro">
       <h3>Equipos críticos por Zona (&gt; 7 días sin reporte)</h3>
-      <p>Cada barra indica las horas exactas sin reporte GPS del equipo.</p>
+      <p>Cada barra indica los días sin reporte GPS del equipo.</p>
     </div>
     <div class="critico-grid">
       <div class="chart-card">
@@ -454,7 +454,7 @@ function switchTab(tab){
 function renderCriticosPorZona(){
   ZONAS_FIJAS.forEach(zona=>{
     const items = DATA.filter(d=> d.zona===zona && d.dias!==null && d.dias!==undefined && d.dias>7)
-                       .sort((a,b)=> (b.horas||0) - (a.horas||0));
+                       .sort((a,b)=> (b.dias||0) - (a.dias||0));
     const canvasId = 'criticoChart-'+zona;
     const canvas = document.getElementById(canvasId);
     const wrap = canvas.closest('.critico-chart-wrap');
@@ -477,7 +477,7 @@ function renderCriticosPorZona(){
       data:{
         labels: items.map(d=>d.label),
         datasets:[{
-          data: items.map(d=>d.horas),
+          data: items.map(d=>d.dias),
           backgroundColor: '#C0392B',
           borderRadius:2,
           maxBarThickness:16
@@ -489,7 +489,7 @@ function renderCriticosPorZona(){
         layout:{ padding:{ right: 40 } },
         plugins:{
           legend:{display:false},
-          tooltip:{callbacks:{label:(ctx)=>ctx.parsed.x+' horas sin reporte'}}
+          tooltip:{callbacks:{label:(ctx)=>ctx.parsed.x+' días sin reporte'}}
         },
         scales:{
           x:{ beginAtZero:true, grid:{color:'#f0ede4'}, ticks:{color:'#8a8378'} },
@@ -504,7 +504,7 @@ function renderCriticosPorZona(){
           chart.data.datasets[0].data.forEach((val,i)=>{
             const bar = meta.data[i];
             if(!bar) return;
-            const text = val+' h';
+            const text = val+' d';
             ctx.save();
             ctx.font = '600 11px Barlow';
             const textWidth = ctx.measureText(text).width;
