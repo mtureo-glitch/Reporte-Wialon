@@ -74,12 +74,54 @@
     min-width:140px;
     text-align:right;
   }
-  .layout{
-    display:grid;
-    grid-template-columns:220px 1fr 210px;
-    gap:16px;
+  .content-single{
     margin-top:10px;
   }
+  .header-filters{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:16px;
+    position:relative;
+  }
+  .dropdown-filter{ position:relative; }
+  .df-btn{
+    font-family:'Barlow', sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    color:#4a4440;
+    background:#faf9f5;
+    border:1px solid #ddd6c5;
+    border-radius:20px;
+    padding:7px 14px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+  .df-btn:hover{ border-color:var(--verde); }
+  .df-btn.open{ border-color:var(--verde); background:#fbfaf3; }
+  .df-count{
+    color:var(--naranja);
+    font-weight:700;
+  }
+  .df-arrow{ font-size:11px; color:var(--gris); }
+  .df-panel{
+    display:none;
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;
+    background:#fff;
+    border:1px solid #ece8dd;
+    border-radius:6px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+    padding:8px 10px;
+    min-width:220px;
+    max-height:280px;
+    overflow-y:auto;
+    z-index:20;
+  }
+  .df-panel.open{ display:block; }
   .panel-title{
     background:var(--verde);
     color:#fff;
@@ -93,16 +135,6 @@
     text-transform:uppercase;
   }
   .panel-title.alt{ color:var(--naranja); background:transparent; }
-  .filter-box{
-    margin-bottom:14px;
-  }
-  .filter-list{
-    margin-top:6px;
-    max-height:190px;
-    overflow-y:auto;
-    padding-right:4px;
-  }
-  .filter-list.tall{ max-height:260px; }
   label.chk{
     display:flex;
     align-items:center;
@@ -124,10 +156,8 @@
     color:var(--naranja);
     cursor:pointer;
     text-decoration:underline;
-    margin-top:4px;
-    display:inline-block;
+    margin-left:4px;
   }
-  .center-col{ min-width:0; }
   .chart-card{
     margin-bottom:22px;
   }
@@ -175,7 +205,6 @@
     text-transform:uppercase;
     letter-spacing:0.5px;
   }
-  .right-col .panel-title{ margin-bottom:10px; }
   .tabs{
     display:flex;
     gap:6px;
@@ -261,90 +290,75 @@
     <div class="logo">arauco</div>
   </header>
 
+  <div class="header-filters">
+    <div class="dropdown-filter">
+      <button class="df-btn" id="df-btn-empresa" onclick="toggleDropdown('empresa')">
+        EMSEFOR<span class="df-count" id="count-empresa"></span> <span class="df-arrow">▾</span>
+      </button>
+      <div class="df-panel" id="panel-empresa"></div>
+    </div>
+    <div class="dropdown-filter">
+      <button class="df-btn" id="df-btn-fecha" onclick="toggleDropdown('fecha')">
+        Año<span class="df-count" id="count-fecha"></span> <span class="df-arrow">▾</span>
+      </button>
+      <div class="df-panel" id="panel-fecha"></div>
+    </div>
+    <span class="reset-link" onclick="resetFilters()">Limpiar filtros</span>
+  </div>
+
   <div class="tabs">
     <button class="tab-btn active" data-tab="general" onclick="switchTab('general')">Resumen General</button>
     <button class="tab-btn" data-tab="criticos" onclick="switchTab('criticos')">Críticos por Zona</button>
   </div>
 
-  <div class="layout">
+  <div class="content-single">
 
-    <!-- LEFT COLUMN -->
-    <div class="left-col">
-      <div class="filter-box">
-        <div class="panel-title">Zona</div>
-        <div class="filter-list" id="zonaFilters"></div>
+    <div id="tab-general">
+      <div class="kpi-row">
+        <div class="kpi"><div class="num" id="kpiEquipos">-</div><div class="lbl">Equipos</div></div>
+        <div class="kpi"><div class="num" id="kpiTotalDias">-</div><div class="lbl">Total días sin reporte</div></div>
+        <div class="kpi"><div class="num" id="kpiPromedio">-</div><div class="lbl">Promedio días / equipo</div></div>
+        <div class="kpi"><div class="num" id="kpiCriticos">-</div><div class="lbl">Equipos &gt; 7 días</div></div>
       </div>
-      <div class="filter-box">
-        <div class="panel-title">EMSEFOR</div>
-        <div class="filter-list tall" id="empresaFilters"></div>
+
+      <div class="chart-card">
+        <h3>Total días sin reporte por Zona</h3>
+        <div id="zonaChartWrap"><canvas id="zonaChart"></canvas></div>
       </div>
-      <div class="filter-box">
-        <div class="panel-title">Fecha</div>
-        <div class="filter-list" id="fechaFilters"></div>
+
+      <div class="chart-card">
+        <h3>Ranking de equipos por días sin reporte</h3>
+        <div class="legend-critico">
+          <span class="dot" style="background:#EA7600"></span> Normal
+          <span class="dot" style="background:#C0392B"></span> Crítico (&gt; 7 días)
+        </div>
+        <div id="rankChartWrap"><canvas id="rankChart"></canvas></div>
       </div>
-      <span class="reset-link" onclick="resetFilters()">Limpiar filtros</span>
     </div>
 
-    <!-- CENTER COLUMN -->
-    <div class="center-col">
-
-      <div id="tab-general">
-        <div class="kpi-row">
-          <div class="kpi"><div class="num" id="kpiEquipos">-</div><div class="lbl">Equipos</div></div>
-          <div class="kpi"><div class="num" id="kpiTotalDias">-</div><div class="lbl">Total días sin reporte</div></div>
-          <div class="kpi"><div class="num" id="kpiPromedio">-</div><div class="lbl">Promedio días / equipo</div></div>
-          <div class="kpi"><div class="num" id="kpiCriticos">-</div><div class="lbl">Equipos &gt; 7 días</div></div>
-        </div>
-
+    <div id="tab-criticos" style="display:none;">
+      <div class="critico-zona-intro">
+        <h3>Equipos críticos por Zona (&gt; 7 días sin reporte)</h3>
+        <p>Cada barra indica los días sin reporte GPS del equipo. Respeta los filtros activos.</p>
+      </div>
+      <div class="critico-grid">
         <div class="chart-card">
-          <h3>Total días sin reporte por Zona</h3>
-          <div id="zonaChartWrap"><canvas id="zonaChart"></canvas></div>
+          <h4>Arauco</h4>
+          <div class="critico-chart-wrap"><canvas id="criticoChart-Arauco"></canvas></div>
         </div>
-
         <div class="chart-card">
-          <h3>Ranking de equipos por días sin reporte</h3>
-          <div class="legend-critico">
-            <span class="dot" style="background:#EA7600"></span> Normal
-            <span class="dot" style="background:#C0392B"></span> Crítico (&gt; 7 días)
-          </div>
-          <div id="rankChartWrap"><canvas id="rankChart"></canvas></div>
+          <h4>Chillán</h4>
+          <div class="critico-chart-wrap"><canvas id="criticoChart-Chillán"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h4>Constitución</h4>
+          <div class="critico-chart-wrap"><canvas id="criticoChart-Constitución"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h4>Valdivia</h4>
+          <div class="critico-chart-wrap"><canvas id="criticoChart-Valdivia"></canvas></div>
         </div>
       </div>
-
-      <div id="tab-criticos" style="display:none;">
-        <div class="critico-zona-intro">
-          <h3>Equipos críticos por Zona (&gt; 7 días sin reporte)</h3>
-          <p>Cada barra indica los días sin reporte GPS del equipo. Respeta los filtros activos.</p>
-        </div>
-        <div class="critico-grid">
-          <div class="chart-card">
-            <h4>Arauco</h4>
-            <div class="critico-chart-wrap"><canvas id="criticoChart-Arauco"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <h4>Chillán</h4>
-            <div class="critico-chart-wrap"><canvas id="criticoChart-Chillán"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <h4>Constitución</h4>
-            <div class="critico-chart-wrap"><canvas id="criticoChart-Constitución"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <h4>Valdivia</h4>
-            <div class="critico-chart-wrap"><canvas id="criticoChart-Valdivia"></canvas></div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- RIGHT COLUMN -->
-    <div class="right-col">
-      <div class="panel-title">Equipo / Proceso</div>
-      <div class="filter-list tall" id="categoriaFilters"></div>
-
-      <div class="panel-title" style="margin-top:14px;">Tipo Equipo</div>
-      <div class="filter-list tall" id="tipoFilters"></div>
     </div>
 
   </div>
@@ -360,17 +374,12 @@ const COLORS = {
   gris:'#695F58', verde:'#BFB800', naranja:'#EA7600', salmon:'#F4BA80', crema:'#DFD1A7'
 };
 
-const state = { zona:new Set(), empresa:new Set(), fecha:new Set(['2026']), categoria:new Set(), tipo:new Set() };
-
+const state = { empresa:new Set(), fecha:new Set(['2026']) };
 const zonaOrderPref = ['Arauco','Chillán','Constitución','Valdivia'];
-const categoriaOrderPref = ['Asistencia','Habilitación','Madereo','Volteo'];
 
 const FILTER_FIELDS = {
-  zona:      { containerId:'zonaFilters',      field:'zona',      order:zonaOrderPref },
-  empresa:   { containerId:'empresaFilters',   field:'empresa' },
-  fecha:     { containerId:'fechaFilters',     field:'year' },
-  categoria: { containerId:'categoriaFilters', field:'categoria', order:categoriaOrderPref },
-  tipo:      { containerId:'tipoFilters',      field:'tipo' }
+  empresa:   { containerId:'panel-empresa',   field:'empresa' },
+  fecha:     { containerId:'panel-fecha',     field:'year' }
 };
 
 function buildFilterList(containerId, options, stateKey){
@@ -411,17 +420,14 @@ function filteredExcept(excludeKey){
 
 function renderFilters(){
   Object.keys(FILTER_FIELDS).forEach(key=>{
-    const {containerId, field, order} = FILTER_FIELDS[key];
+    const {containerId, field} = FILTER_FIELDS[key];
     const avail = new Set(filteredExcept(key).map(d=>d[field]).filter(Boolean));
     // quita selecciones que ya no aplican dado el resto de filtros
     [...state[key]].forEach(v=>{ if(!avail.has(v)) state[key].delete(v); });
-    let opts = [...avail];
-    if(order){
-      opts.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
-    } else {
-      opts.sort((a,b)=>a.localeCompare(b,'es'));
-    }
+    let opts = [...avail].sort((a,b)=>a.localeCompare(b,'es'));
     buildFilterList(containerId, opts, key);
+    const countEl = document.getElementById('count-'+key);
+    if(countEl) countEl.textContent = state[key].size ? ` (${state[key].size})` : '';
   });
 }
 
@@ -441,6 +447,24 @@ function getFiltered(){
     return true;
   });
 }
+
+function toggleDropdown(key){
+  const panel = document.getElementById('panel-'+key);
+  const btn = document.getElementById('df-btn-'+key);
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.df-panel').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.df-btn').forEach(b=>b.classList.remove('open'));
+  if(!isOpen){
+    panel.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.dropdown-filter')){
+    document.querySelectorAll('.df-panel').forEach(p=>p.classList.remove('open'));
+    document.querySelectorAll('.df-btn').forEach(b=>b.classList.remove('open'));
+  }
+});
 
 let zonaChart, rankChart;
 const criticoCharts = {};
