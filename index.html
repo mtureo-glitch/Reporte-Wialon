@@ -577,7 +577,7 @@ function render(){
   const zonaSums = {};
   allZonas.forEach(z=>zonaSums[z]=0);
   withDias.forEach(d=>{ zonaSums[d.zona]=(zonaSums[d.zona]||0)+d.dias; });
-  const zonaLabels = allZonas.filter(z=> !state.zona.size || state.zona.has(z));
+  const zonaLabels = allZonas;
   const zonaVals = zonaLabels.map(z=>zonaSums[z]||0);
   // sort desc like reference
   const zonaPairs = zonaLabels.map((l,i)=>({l,v:zonaVals[i]})).sort((a,b)=>b.v-a.v);
