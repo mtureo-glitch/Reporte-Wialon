@@ -266,7 +266,7 @@
     <button class="tab-btn" data-tab="criticos" onclick="switchTab('criticos')">Críticos por Zona</button>
   </div>
 
-  <div class="layout" id="tab-general">
+  <div class="layout">
 
     <!-- LEFT COLUMN -->
     <div class="left-col">
@@ -287,26 +287,55 @@
 
     <!-- CENTER COLUMN -->
     <div class="center-col">
-      <div class="kpi-row">
-        <div class="kpi"><div class="num" id="kpiEquipos">-</div><div class="lbl">Equipos</div></div>
-        <div class="kpi"><div class="num" id="kpiTotalDias">-</div><div class="lbl">Total días sin reporte</div></div>
-        <div class="kpi"><div class="num" id="kpiPromedio">-</div><div class="lbl">Promedio días / equipo</div></div>
-        <div class="kpi"><div class="num" id="kpiCriticos">-</div><div class="lbl">Equipos &gt; 7 días</div></div>
-      </div>
 
-      <div class="chart-card">
-        <h3>Total días sin reporte por Zona</h3>
-        <div id="zonaChartWrap"><canvas id="zonaChart"></canvas></div>
-      </div>
-
-      <div class="chart-card">
-        <h3>Ranking de equipos por días sin reporte</h3>
-        <div class="legend-critico">
-          <span class="dot" style="background:#EA7600"></span> Normal
-          <span class="dot" style="background:#C0392B"></span> Crítico (&gt; 7 días)
+      <div id="tab-general">
+        <div class="kpi-row">
+          <div class="kpi"><div class="num" id="kpiEquipos">-</div><div class="lbl">Equipos</div></div>
+          <div class="kpi"><div class="num" id="kpiTotalDias">-</div><div class="lbl">Total días sin reporte</div></div>
+          <div class="kpi"><div class="num" id="kpiPromedio">-</div><div class="lbl">Promedio días / equipo</div></div>
+          <div class="kpi"><div class="num" id="kpiCriticos">-</div><div class="lbl">Equipos &gt; 7 días</div></div>
         </div>
-        <div id="rankChartWrap"><canvas id="rankChart"></canvas></div>
+
+        <div class="chart-card">
+          <h3>Total días sin reporte por Zona</h3>
+          <div id="zonaChartWrap"><canvas id="zonaChart"></canvas></div>
+        </div>
+
+        <div class="chart-card">
+          <h3>Ranking de equipos por días sin reporte</h3>
+          <div class="legend-critico">
+            <span class="dot" style="background:#EA7600"></span> Normal
+            <span class="dot" style="background:#C0392B"></span> Crítico (&gt; 7 días)
+          </div>
+          <div id="rankChartWrap"><canvas id="rankChart"></canvas></div>
+        </div>
       </div>
+
+      <div id="tab-criticos" style="display:none;">
+        <div class="critico-zona-intro">
+          <h3>Equipos críticos por Zona (&gt; 7 días sin reporte)</h3>
+          <p>Cada barra indica los días sin reporte GPS del equipo. Respeta los filtros activos.</p>
+        </div>
+        <div class="critico-grid">
+          <div class="chart-card">
+            <h4>Arauco</h4>
+            <div class="critico-chart-wrap"><canvas id="criticoChart-Arauco"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h4>Chillán</h4>
+            <div class="critico-chart-wrap"><canvas id="criticoChart-Chillán"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h4>Constitución</h4>
+            <div class="critico-chart-wrap"><canvas id="criticoChart-Constitución"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h4>Valdivia</h4>
+            <div class="critico-chart-wrap"><canvas id="criticoChart-Valdivia"></canvas></div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- RIGHT COLUMN -->
@@ -318,31 +347,6 @@
       <div class="filter-list tall" id="tipoFilters"></div>
     </div>
 
-  </div>
-
-  <div class="tab-panel" id="tab-criticos" style="display:none;">
-    <div class="critico-zona-intro">
-      <h3>Equipos críticos por Zona (&gt; 7 días sin reporte)</h3>
-      <p>Cada barra indica los días sin reporte GPS del equipo.</p>
-    </div>
-    <div class="critico-grid">
-      <div class="chart-card">
-        <h4>Arauco</h4>
-        <div class="critico-chart-wrap"><canvas id="criticoChart-Arauco"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h4>Chillán</h4>
-        <div class="critico-chart-wrap"><canvas id="criticoChart-Chillán"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h4>Constitución</h4>
-        <div class="critico-chart-wrap"><canvas id="criticoChart-Constitución"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h4>Valdivia</h4>
-        <div class="critico-chart-wrap"><canvas id="criticoChart-Valdivia"></canvas></div>
-      </div>
-    </div>
   </div>
 
   <footer>Fuente: FLOTA_TOTAL_skidders — Estado de Máquinas Wialon</footer>
@@ -442,9 +446,12 @@ let zonaChart, rankChart;
 const criticoCharts = {};
 const ZONAS_FIJAS = ['Arauco','Chillán','Constitución','Valdivia'];
 
+let activeTab = 'general';
+
 function switchTab(tab){
+  activeTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
-  document.getElementById('tab-general').style.display = (tab==='general') ? 'grid' : 'none';
+  document.getElementById('tab-general').style.display = (tab==='general') ? 'block' : 'none';
   document.getElementById('tab-criticos').style.display = (tab==='criticos') ? 'block' : 'none';
   if(tab==='criticos'){
     renderCriticosPorZona();
@@ -452,8 +459,9 @@ function switchTab(tab){
 }
 
 function renderCriticosPorZona(){
+  const base = getFiltered();
   ZONAS_FIJAS.forEach(zona=>{
-    const items = DATA.filter(d=> d.zona===zona && d.dias!==null && d.dias!==undefined && d.dias>7)
+    const items = base.filter(d=> d.zona===zona && d.dias!==null && d.dias!==undefined && d.dias>7)
                        .sort((a,b)=> (b.dias||0) - (a.dias||0));
     const canvasId = 'criticoChart-'+zona;
     const canvas = document.getElementById(canvasId);
@@ -652,6 +660,10 @@ function render(){
       }
     }]
   });
+
+  if(activeTab === 'criticos'){
+    renderCriticosPorZona();
+  }
 }
 
 render();
