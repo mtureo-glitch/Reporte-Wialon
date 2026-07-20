@@ -74,9 +74,23 @@
     min-width:140px;
     text-align:right;
   }
-  .content-single{
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr 210px;
+    gap:16px;
     margin-top:10px;
   }
+  .filter-box{
+    margin-bottom:14px;
+  }
+  .filter-list{
+    margin-top:6px;
+    max-height:190px;
+    overflow-y:auto;
+    padding-right:4px;
+  }
+  .filter-list.tall{ max-height:260px; }
+  .center-col{ min-width:0; }
   .header-filters{
     display:flex;
     align-items:center;
@@ -290,77 +304,106 @@
     <div class="logo">arauco</div>
   </header>
 
-  <div class="header-filters">
-    <div class="dropdown-filter">
-      <button class="df-btn" id="df-btn-empresa" onclick="toggleDropdown('empresa')">
-        EMSEFOR<span class="df-count" id="count-empresa"></span> <span class="df-arrow">▾</span>
-      </button>
-      <div class="df-panel" id="panel-empresa"></div>
-    </div>
-    <div class="dropdown-filter">
-      <button class="df-btn" id="df-btn-fecha" onclick="toggleDropdown('fecha')">
-        Año<span class="df-count" id="count-fecha"></span> <span class="df-arrow">▾</span>
-      </button>
-      <div class="df-panel" id="panel-fecha"></div>
-    </div>
-    <span class="reset-link" onclick="resetFilters()">Limpiar filtros</span>
-  </div>
-
   <div class="tabs">
     <button class="tab-btn active" data-tab="general" onclick="switchTab('general')">Resumen General</button>
     <button class="tab-btn" data-tab="criticos" onclick="switchTab('criticos')">Críticos por Zona</button>
   </div>
 
-  <div class="content-single">
+  <div id="tab-general">
+    <div class="layout">
 
-    <div id="tab-general">
-      <div class="kpi-row">
-        <div class="kpi"><div class="num" id="kpiEquipos">-</div><div class="lbl">Equipos</div></div>
-        <div class="kpi"><div class="num" id="kpiTotalDias">-</div><div class="lbl">Total días sin reporte</div></div>
-        <div class="kpi"><div class="num" id="kpiPromedio">-</div><div class="lbl">Promedio días / equipo</div></div>
-        <div class="kpi"><div class="num" id="kpiCriticos">-</div><div class="lbl">Equipos &gt; 7 días</div></div>
-      </div>
-
-      <div class="chart-card">
-        <h3>Total días sin reporte por Zona</h3>
-        <div id="zonaChartWrap"><canvas id="zonaChart"></canvas></div>
-      </div>
-
-      <div class="chart-card">
-        <h3>Ranking de equipos por días sin reporte</h3>
-        <div class="legend-critico">
-          <span class="dot" style="background:#EA7600"></span> Normal
-          <span class="dot" style="background:#C0392B"></span> Crítico (&gt; 7 días)
+      <!-- LEFT COLUMN -->
+      <div class="left-col">
+        <div class="filter-box">
+          <div class="panel-title">Zona</div>
+          <div class="filter-list" id="zonaFilters"></div>
         </div>
-        <div id="rankChartWrap"><canvas id="rankChart"></canvas></div>
+        <div class="filter-box">
+          <div class="panel-title">EMSEFOR</div>
+          <div class="filter-list tall" id="empresaFilters"></div>
+        </div>
+        <div class="filter-box">
+          <div class="panel-title">Fecha</div>
+          <div class="filter-list" id="fechaFilters"></div>
+        </div>
+        <span class="reset-link" onclick="resetFilters()">Limpiar filtros</span>
       </div>
+
+      <!-- CENTER COLUMN -->
+      <div class="center-col">
+        <div class="kpi-row">
+          <div class="kpi"><div class="num" id="kpiEquipos">-</div><div class="lbl">Equipos</div></div>
+          <div class="kpi"><div class="num" id="kpiTotalDias">-</div><div class="lbl">Total días sin reporte</div></div>
+          <div class="kpi"><div class="num" id="kpiPromedio">-</div><div class="lbl">Promedio días / equipo</div></div>
+          <div class="kpi"><div class="num" id="kpiCriticos">-</div><div class="lbl">Equipos &gt; 7 días</div></div>
+        </div>
+
+        <div class="chart-card">
+          <h3>Total días sin reporte por Zona</h3>
+          <div id="zonaChartWrap"><canvas id="zonaChart"></canvas></div>
+        </div>
+
+        <div class="chart-card">
+          <h3>Ranking de equipos por días sin reporte</h3>
+          <div class="legend-critico">
+            <span class="dot" style="background:#EA7600"></span> Normal
+            <span class="dot" style="background:#C0392B"></span> Crítico (&gt; 7 días)
+          </div>
+          <div id="rankChartWrap"><canvas id="rankChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="right-col">
+        <div class="panel-title">Equipo / Proceso</div>
+        <div class="filter-list tall" id="categoriaFilters"></div>
+
+        <div class="panel-title" style="margin-top:14px;">Tipo Equipo</div>
+        <div class="filter-list tall" id="tipoFilters"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="tab-criticos" style="display:none;">
+    <div class="header-filters">
+      <div class="dropdown-filter">
+        <button class="df-btn" id="df-btn-empresa" onclick="toggleDropdown('empresa')">
+          EMSEFOR<span class="df-count" id="count-empresa"></span> <span class="df-arrow">▾</span>
+        </button>
+        <div class="df-panel" id="panel-empresa"></div>
+      </div>
+      <div class="dropdown-filter">
+        <button class="df-btn" id="df-btn-fecha" onclick="toggleDropdown('fecha')">
+          Año<span class="df-count" id="count-fecha"></span> <span class="df-arrow">▾</span>
+        </button>
+        <div class="df-panel" id="panel-fecha"></div>
+      </div>
+      <span class="reset-link" onclick="resetFiltersCriticos()">Limpiar filtros</span>
     </div>
 
-    <div id="tab-criticos" style="display:none;">
-      <div class="critico-zona-intro">
-        <h3>Equipos críticos por Zona (&gt; 7 días sin reporte)</h3>
-        <p>Cada barra indica los días sin reporte GPS del equipo. Respeta los filtros activos.</p>
+    <div class="critico-zona-intro">
+      <h3>Equipos críticos por Zona (&gt; 7 días sin reporte)</h3>
+      <p>Cada barra indica los días sin reporte GPS del equipo.</p>
+    </div>
+    <div class="critico-grid">
+      <div class="chart-card">
+        <h4>Arauco</h4>
+        <div class="critico-chart-wrap"><canvas id="criticoChart-Arauco"></canvas></div>
       </div>
-      <div class="critico-grid">
-        <div class="chart-card">
-          <h4>Arauco</h4>
-          <div class="critico-chart-wrap"><canvas id="criticoChart-Arauco"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <h4>Chillán</h4>
-          <div class="critico-chart-wrap"><canvas id="criticoChart-Chillán"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <h4>Constitución</h4>
-          <div class="critico-chart-wrap"><canvas id="criticoChart-Constitución"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <h4>Valdivia</h4>
-          <div class="critico-chart-wrap"><canvas id="criticoChart-Valdivia"></canvas></div>
-        </div>
+      <div class="chart-card">
+        <h4>Chillán</h4>
+        <div class="critico-chart-wrap"><canvas id="criticoChart-Chillán"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>Constitución</h4>
+        <div class="critico-chart-wrap"><canvas id="criticoChart-Constitución"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>Valdivia</h4>
+        <div class="critico-chart-wrap"><canvas id="criticoChart-Valdivia"></canvas></div>
       </div>
     </div>
-
   </div>
 
   <footer>Fuente: FLOTA_TOTAL_skidders — Estado de Máquinas Wialon</footer>
@@ -374,15 +417,21 @@ const COLORS = {
   gris:'#695F58', verde:'#BFB800', naranja:'#EA7600', salmon:'#F4BA80', crema:'#DFD1A7'
 };
 
-const state = { empresa:new Set(), fecha:new Set(['2026']) };
 const zonaOrderPref = ['Arauco','Chillán','Constitución','Valdivia'];
+const categoriaOrderPref = ['Asistencia','Habilitación','Madereo','Volteo'];
+
+// --- Sistema de filtros GENERAL (checkbox, cross-filtering completo) ---
+const state = { zona:new Set(), empresa:new Set(), fecha:new Set(['2026']), categoria:new Set(), tipo:new Set() };
 
 const FILTER_FIELDS = {
-  empresa:   { containerId:'panel-empresa',   field:'empresa' },
-  fecha:     { containerId:'panel-fecha',     field:'year' }
+  zona:      { containerId:'zonaFilters',      field:'zona',      order:zonaOrderPref },
+  empresa:   { containerId:'empresaFilters',   field:'empresa' },
+  fecha:     { containerId:'fechaFilters',     field:'year' },
+  categoria: { containerId:'categoriaFilters', field:'categoria', order:categoriaOrderPref },
+  tipo:      { containerId:'tipoFilters',      field:'tipo' }
 };
 
-function buildFilterList(containerId, options, stateKey){
+function buildFilterList(containerId, options, stateObj, stateKey, onChange){
   const el = document.getElementById(containerId);
   el.innerHTML = '';
   if(!options.length){
@@ -393,18 +442,17 @@ function buildFilterList(containerId, options, stateKey){
     const id = containerId+'-'+opt.replace(/\s+/g,'_');
     const label = document.createElement('label');
     label.className='chk';
-    const checked = state[stateKey].has(opt) ? 'checked' : '';
+    const checked = stateObj[stateKey].has(opt) ? 'checked' : '';
     label.innerHTML = `<input type="checkbox" id="${id}" ${checked}><span>${opt}</span>`;
     const input = label.querySelector('input');
     input.addEventListener('change', ()=>{
-      if(input.checked) state[stateKey].add(opt); else state[stateKey].delete(opt);
-      render();
+      if(input.checked) stateObj[stateKey].add(opt); else stateObj[stateKey].delete(opt);
+      onChange();
     });
     el.appendChild(label);
   });
 }
 
-// Filtra DATA usando todos los filtros activos EXCEPTO el indicado (para cross-filtering)
 function filteredExcept(excludeKey){
   return DATA.filter(d=>{
     for(const key in FILTER_FIELDS){
@@ -420,14 +468,16 @@ function filteredExcept(excludeKey){
 
 function renderFilters(){
   Object.keys(FILTER_FIELDS).forEach(key=>{
-    const {containerId, field} = FILTER_FIELDS[key];
+    const {containerId, field, order} = FILTER_FIELDS[key];
     const avail = new Set(filteredExcept(key).map(d=>d[field]).filter(Boolean));
-    // quita selecciones que ya no aplican dado el resto de filtros
     [...state[key]].forEach(v=>{ if(!avail.has(v)) state[key].delete(v); });
-    let opts = [...avail].sort((a,b)=>a.localeCompare(b,'es'));
-    buildFilterList(containerId, opts, key);
-    const countEl = document.getElementById('count-'+key);
-    if(countEl) countEl.textContent = state[key].size ? ` (${state[key].size})` : '';
+    let opts = [...avail];
+    if(order){
+      opts.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+    } else {
+      opts.sort((a,b)=>a.localeCompare(b,'es'));
+    }
+    buildFilterList(containerId, opts, state, key, render);
   });
 }
 
@@ -442,6 +492,56 @@ function getFiltered(){
       const s = state[key];
       if(!s.size) continue;
       const fieldName = FILTER_FIELDS[key].field;
+      if(!s.has(d[fieldName])) return false;
+    }
+    return true;
+  });
+}
+
+// --- Sistema de filtros CRÍTICOS POR ZONA (dropdown, solo EMSEFOR y Año) ---
+const stateCrit = { empresa:new Set(), fecha:new Set(['2026']) };
+
+const FILTER_FIELDS_CRIT = {
+  empresa: { containerId:'panel-empresa', field:'empresa' },
+  fecha:   { containerId:'panel-fecha',   field:'year' }
+};
+
+function filteredExceptCrit(excludeKey){
+  return DATA.filter(d=>{
+    for(const key in FILTER_FIELDS_CRIT){
+      if(key===excludeKey) continue;
+      const s = stateCrit[key];
+      if(!s.size) continue;
+      const fieldName = FILTER_FIELDS_CRIT[key].field;
+      if(!s.has(d[fieldName])) return false;
+    }
+    return true;
+  });
+}
+
+function renderFiltersCrit(){
+  Object.keys(FILTER_FIELDS_CRIT).forEach(key=>{
+    const {containerId, field} = FILTER_FIELDS_CRIT[key];
+    const avail = new Set(filteredExceptCrit(key).map(d=>d[field]).filter(Boolean));
+    [...stateCrit[key]].forEach(v=>{ if(!avail.has(v)) stateCrit[key].delete(v); });
+    let opts = [...avail].sort((a,b)=>a.localeCompare(b,'es'));
+    buildFilterList(containerId, opts, stateCrit, key, renderCriticosPorZona);
+    const countEl = document.getElementById('count-'+key);
+    if(countEl) countEl.textContent = stateCrit[key].size ? ` (${stateCrit[key].size})` : '';
+  });
+}
+
+function resetFiltersCriticos(){
+  Object.values(stateCrit).forEach(s=>s.clear());
+  renderCriticosPorZona();
+}
+
+function getFilteredCrit(){
+  return DATA.filter(d=>{
+    for(const key in FILTER_FIELDS_CRIT){
+      const s = stateCrit[key];
+      if(!s.size) continue;
+      const fieldName = FILTER_FIELDS_CRIT[key].field;
       if(!s.has(d[fieldName])) return false;
     }
     return true;
@@ -483,7 +583,8 @@ function switchTab(tab){
 }
 
 function renderCriticosPorZona(){
-  const base = getFiltered();
+  renderFiltersCrit();
+  const base = getFilteredCrit();
   ZONAS_FIJAS.forEach(zona=>{
     const items = base.filter(d=> d.zona===zona && d.dias!==null && d.dias!==undefined && d.dias>7)
                        .sort((a,b)=> (b.dias||0) - (a.dias||0));
@@ -684,10 +785,6 @@ function render(){
       }
     }]
   });
-
-  if(activeTab === 'criticos'){
-    renderCriticosPorZona();
-  }
 }
 
 render();
