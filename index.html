@@ -262,9 +262,15 @@
   }
   .tabs{
     display:flex;
+    align-items:center;
     gap:6px;
     margin:16px 0 4px;
     border-bottom:2px solid #ece8dd;
+  }
+  #downloadBtnTop{
+    margin-left:auto;
+    margin-top:0;
+    margin-bottom:8px;
   }
   .tab-btn{
     font-family:'Barlow Condensed', sans-serif;
@@ -349,6 +355,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="general" onclick="switchTab('general')">Resumen General</button>
       <button class="tab-btn" data-tab="criticos" onclick="switchTab('criticos')">Críticos por Zona</button>
+      <button class="download-btn" id="downloadBtnTop" onclick="descargarExcel()">⬇ Descargar Excel</button>
     </div>
   </div>
 
@@ -374,7 +381,6 @@
           <div class="filter-list" id="fechaFilters"></div>
         </div>
         <span class="reset-link" onclick="resetFilters()">Limpiar filtros</span>
-        <button class="download-btn" onclick="descargarExcel()">⬇ Descargar Excel</button>
       </div>
 
       <!-- CENTER COLUMN -->
